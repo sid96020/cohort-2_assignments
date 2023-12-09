@@ -16,6 +16,52 @@
   Once you've implemented the logic, test your code by running
 */
 
-class Calculator {}
+class Calculator {
+  constructor(){
+    this.result=0;
+  }
 
+  add(value){
+    this.result+=value;
+    return this.result
+  }
+
+  subtract(value){
+    this.result-=value;
+    return this.result
+  }
+
+  multiply(value){
+    this.result*=value;
+    return this.result
+  }
+
+  divide(value){
+    if (value==0){
+      throw new Error
+    }
+    this.result/=value;
+    return this.result
+  }
+
+  clear(){
+    this.result=0;
+    return this.result
+  }
+
+  getResult(){
+    return this.result
+  }
+
+  calculate(str){
+    this.result = eval(str)
+    if (this.result == Infinity){
+      throw new Error
+    }
+    return this.result
+  }
+  
+
+  
+}
 module.exports = Calculator;
