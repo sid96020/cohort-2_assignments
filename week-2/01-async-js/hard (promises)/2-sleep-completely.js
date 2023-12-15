@@ -5,6 +5,17 @@
  */
 
 function sleep(milliseconds) {
+    return new Promise(function (resolve, reject) {
+        function sleep_prom(milliseconds) {
+            return new Promise(function(resolve, reject) {
+                setTimeout(()=>{
+                    resolve()
+                },milliseconds);
+            })
+        }
+        sleep_prom(milliseconds).then(()=>resolve());
+    })
 }
+
 
 module.exports = sleep;
