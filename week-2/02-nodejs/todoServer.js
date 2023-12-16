@@ -41,9 +41,134 @@
  */
   const express = require('express');
   const bodyParser = require('body-parser');
+  const fs = require('fs');
   
   const app = express();
-  
+const min = 100000;
+const max = 999999;
+
+// Generate a random integer between min (inclusive) and max (exclusive)
+const randomInteger = Math.floor(Math.random() * (max - min) + min);
+
+// Generate a random integer within a specific range (inclusive)
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
   app.use(bodyParser.json());
   
+  app.get('/todos', (req, res) => {
+    let todo = {};
+    fs.readFile('./todos.json', 'utf8', (err, data) => {
+      if (err) {
+        return err;
+      }
+      todo=data;
+      res.send(todo);
+    });  
+  }
+  )
+
+  app.get('/todos/:id', (req, res) => {
+    let todo = {};
+
+    fs.readFile('./todos.json', 'utf8', (err, data) => {
+      if (err) {
+        return err;
+      }
+      let Found_Flag = false;
+      let req_id = req.params.id;
+      todo=JSON.parse(data);
+      for (let i = 0; i < todo.length; i++){
+        if(todo[i].id == req_id){
+          Found_Flag = true;
+          res.json(todo[i]);
+        }
+      }
+      if(!Found_Flag){
+        return res.status(404).json({error: "ID Not Found"});
+      }
+    });  
+  }
+  )
+
+  app.post('/todos', (req, res) => {
+
+    fs.readFile('./todos.json', 'utf8', (err, data) => {
+      todo=JSON.parse(data);
+      Generated_id = getRandomInt(min, max);
+      todo.push({id:Generated_id, title:req.body.title, description:req.body.description});
+      fs.writeFile('./todos.json', JSON.stringify(todo), (err) => {
+        if (err) {
+          return err;
+        }
+        res.status(201).json({id:Generated_id})
+      });
+
+    });
+  })
+
+  
+  app.put('/todos/:id', (req, res) => {
+
+        fs.readFile('./todos.json', 'utf8', (err, data) => {
+          if (err) {
+            return err;
+          }
+          let req_id = parseInt(req.params.id,10);
+          let Found_Flag = false;
+          todo=JSON.parse(data);
+          for (let i = 0; i < todo.length; i++){
+            if(todo[i].id == req_id){
+              Found_Flag = true;
+              todo[i]={id:req_id, ...req.body}
+              fs.writeFile('./todos.json', JSON.stringify(todo), (err) => {
+                if (err) {
+                  return err;
+                }
+                return res.status(200).json({message: "Todo Updataed"});
+
+              })
+
+              break;
+            }
+          }
+          if(!Found_Flag){
+            return res.status(404).json({error: "ID Not Found"});
+          }
+          
+      }); 
+  }
+  )
+
+  app.delete('/todos/:id', (req, res) => {
+
+    fs.readFile('./todos.json', 'utf8', (err, data) => {
+      if (err) {
+        return err;
+      }
+      let req_id = parseInt(req.params.id,10);
+      let Found_Flag = false;
+      todo=JSON.parse(data);
+      for (let i = 0; i < todo.length; i++){
+        if(todo[i].id == req_id){
+          Found_Flag = true;
+          new_todo=todo.filter(data => data.id != req_id)
+          fs.writeFile('./todos.json', JSON.stringify(new_todo), (err) => {
+            if (err) {
+              return err;
+            }
+            return res.status(200).json({message: "Todo deleted successfully"});
+
+          })
+
+          break;
+        }
+      }
+      if(!Found_Flag){
+        return res.status(404).json({error: "ID Not Found"});
+      }
+      
+  }); 
+}
+)
   module.exports = app;
